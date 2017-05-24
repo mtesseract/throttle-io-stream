@@ -43,6 +43,8 @@ test :: IO ()
 test = do
   let conf = newThrottleConf
         & throttleConfSetMeasure measure
+        & throttleConfThrottleProducer
+        & throttleConfThrottleConsumer
         & throttleConfSetInterval 1000       -- Interval is one second
         & throttleConfSetMaxThroughput 100   -- 100 Bytes per interval
         & throttleConfSetBufferSize 32
