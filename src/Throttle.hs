@@ -112,10 +112,11 @@ defaultEmaAlpha = 0.5
 
 -- | Asynchonously read items with the given input callback and write
 -- them throttled with the given output callback.
-throttle :: ThrottleConf a  -- ^ Throttling configuration
-         -> IO (Maybe a)    -- ^ Input callback
-         -> (a -> IO ())    -- ^ Output callback
-         -> IO (Async ())   -- ^ Returns an async handler for this throttling process
+throttle :: ThrottleConf a     -- ^ Throttling configuration
+         -> IO (Maybe a)       -- ^ Input callback
+         -> (Maybe a -> IO ()) -- ^ Output callback
+         -> IO (Async ())      -- ^ Returns an async handler for this
+                               -- throttling process
 throttle (conf @ ThrottleConf { .. }) readItem writeItem = do
   queueBuffer <- atomically $ newTBMQueue throttleConfBufferSize
   statsTVar   <- atomically $ newTVar Stats { statsEmaItemSizeIn  = newEma throttleConfEmaAlpha 0
@@ -125,7 +126,7 @@ throttle (conf @ ThrottleConf { .. }) readItem writeItem = do
     withAsync (producer conf statsTVar queueBuffer writeItem) $ \ producerThread -> do
     link consumerThread
     link producerThread
-    void $ waitAny [consumerThread, producerThread]
+    void $ waitBoth consumerThread producerThread
 
 -- | Unthrottled consumer. Fills the provided buffer with new items as
 -- fast as possible.
@@ -163,7 +164,7 @@ consumerThrottled (conf @ ThrottleConf { .. }) statsTVar buffer readItem = go
 producer :: ThrottleConf a
          -> TVar Stats
          -> TBMQueue a
-         -> (a -> IO ())
+         -> (Maybe a -> IO ())
          -> IO ()
 producer (conf @ ThrottleConf { .. }) stats =
   if throttleProducer throttleConfMode
@@ -187,18 +188,19 @@ consumer (conf @ ThrottleConf { .. }) stats =
 producerThrottled :: ThrottleConf a
                   -> TVar Stats
                   -> TBMQueue a
-                  -> (a -> IO ())
+                  -> (Maybe a -> IO ())
                   -> IO ()
 producerThrottled (conf @ ThrottleConf { .. }) statsTVar buffer writeItem = go
   where go = do
           (maybeStats, produceDuration) <- timeAction $
             atomically (readTBMQueue buffer) >>= \ case
               Just a -> do
-                writeItem a
+                writeItem (Just a)
                 atomically $ do
                   modifyTVar statsTVar (updateStatsOut conf a)
                   Just <$> readTVar statsTVar
-              Nothing ->
+              Nothing -> do
+                writeItem Nothing
                 return Nothing
           case maybeStats of
             Just stats -> do
@@ -208,13 +210,13 @@ producerThrottled (conf @ ThrottleConf { .. }) statsTVar buffer writeItem = go
 
 -- | Unthrottled producer.
 producerUnthrottled :: TBMQueue a
-                    -> (a -> IO ())
+                    -> (Maybe a -> IO ())
                     -> IO ()
 producerUnthrottled buffer writeItem = go
   where go =
           atomically (readTBMQueue buffer) >>= \ case
-            Just a  -> writeItem a >> go
-            Nothing -> return ()
+            Just a  -> writeItem (Just a) >> go
+            Nothing -> writeItem Nothing
 
 -- | Update provided statistics.
 updateStatsOut :: ThrottleConf a -> a -> Stats -> Stats

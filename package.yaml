@@ -1,0 +1,28 @@
+name: io-throttle
+version: '0.1.0.0'
+synopsis: Throttler between a producer and a consumer function
+description: To be written.
+category: Concurrency
+author: Moritz Schulte
+maintainer: mtesseract@silverratio.net
+copyright: (c) 2017 Moritz Schulte
+license: BSD3
+github: mtesseract/io-throttle
+extra-source-files:
+- README.md
+ghc-options:
+- -Wall
+- -fno-warn-type-defaults
+dependencies:
+- base >=4.7 && <5
+- stm
+- async
+- stm-chans
+- clock
+- bytestring
+- say
+- text
+library:
+  source-dirs: src
+  exposed-modules:
+  - Throttle
