@@ -4,7 +4,7 @@
 
 -- | Throttle
 
-module Throttle
+module Control.Concurrent.Throttle
  ( Measure
  , ThrottleConf
  , newThrottleConf
@@ -22,9 +22,9 @@ import           Control.Concurrent
 import           Control.Concurrent.Async
 import           Control.Concurrent.STM
 import           Control.Concurrent.STM.TBMQueue
+import           Control.Concurrent.Throttle.Ema
 import           Control.Monad
 import           Control.Monad.IO.Class
-import           Ema
 import           System.Clock
 
 -- | Type of a measure function for items of the specified type. The

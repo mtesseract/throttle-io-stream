@@ -1,6 +1,6 @@
 -- | Exponentially weighted moving average
 
-module Ema
+module Control.Concurrent.Throttle.Ema
   ( Ema
   , emaCurrent
   , emaWeight
