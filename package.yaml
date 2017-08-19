@@ -25,4 +25,4 @@ dependencies:
 library:
   source-dirs: src
   exposed-modules:
-  - Throttle
+  - Control.Concurrent.Throttle
