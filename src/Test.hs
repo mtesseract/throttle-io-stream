@@ -23,8 +23,9 @@ produceNext :: TBQueue Elem -> IO (Maybe Elem)
 produceNext queue =
   atomically $ Just <$> readTBQueue queue
 
-consumeNext :: Elem -> IO ()
-consumeNext = say . decodeUtf8 . unElem
+consumeNext :: Maybe Elem -> IO ()
+consumeNext (Just e) = say . decodeUtf8 . unElem $ e
+consumeNext Nothing  = say "no more data"
 
 initialDelay :: Int
 initialDelay = 5 * 10^6
