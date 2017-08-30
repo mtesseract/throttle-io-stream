@@ -1,5 +1,5 @@
-name: io-throttle
-version: '0.1.0.0'
+name: throttle-io-stream
+version: '0.2.0.0'
 synopsis: Throttler between arbitrary IO producer and consumer functions
 description: To be written.
 category: Concurrency
@@ -19,7 +19,6 @@ dependencies:
 - async
 - stm-chans
 - clock
-- say
 - text
 library:
   source-dirs: src
