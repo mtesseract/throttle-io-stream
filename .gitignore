@@ -17,4 +17,4 @@ cabal.sandbox.config
 *.eventlog
 .stack-work/
 cabal.project.local
-io-throttle.cabal
+throttle-io-stream.cabal
