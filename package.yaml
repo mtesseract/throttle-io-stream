@@ -23,3 +23,23 @@ library:
   source-dirs: src
   exposed-modules:
   - Control.Concurrent.Throttle
+tests:
+  throttle-io-stream-test:
+    main: Simple.hs
+    source-dirs: tests
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    - -Wall
+    - -fno-warn-type-defaults
+    dependencies:
+    - base
+    - throttle-io-stream
+    - HUnit
+    - test-framework
+    - test-framework-hunit
+    - say
+    - text
+    - bytestring
+    - async
