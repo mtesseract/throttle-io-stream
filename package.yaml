@@ -19,7 +19,6 @@ dependencies:
 - async
 - stm-chans
 - clock
-- text
 library:
   source-dirs: src
   exposed-modules:
