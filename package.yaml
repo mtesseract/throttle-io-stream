@@ -1,7 +1,12 @@
 name: throttle-io-stream
 version: '0.2.0.0'
 synopsis: Throttler between arbitrary IO producer and consumer functions
-description: To be written.
+
+description: This packages provides functionality for throttling IO
+             using general IO callbacks. The throttling depends on a
+             provided configuration. The supported throttling modes
+             are producer throttling, consumer throttling or producer
+             & consumer throttling.
 category: Concurrency
 author: Moritz Schulte
 maintainer: mtesseract@silverratio.net
