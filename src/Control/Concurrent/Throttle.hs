@@ -80,11 +80,11 @@ throttleConfSetMeasure :: Measure a -> ThrottleConf a -> ThrottleConf a
 throttleConfSetMeasure measure conf = conf { throttleConfMeasure = measure }
 
 throttleConfThrottleProducer :: ThrottleConf a -> ThrottleConf a
-throttleConfThrottleProducer conf @ ThrottleConf { .. } =
+throttleConfThrottleProducer conf@ThrottleConf { .. } =
   conf { throttleConfMode = throttleConfMode { throttleProducer = True } }
 
 throttleConfThrottleConsumer :: ThrottleConf a -> ThrottleConf a
-throttleConfThrottleConsumer conf @ ThrottleConf { .. } =
+throttleConfThrottleConsumer conf@ThrottleConf { .. } =
   conf { throttleConfMode = throttleConfMode { throttleConsumer = True } }
 
 -- | Set interval in configuration.
@@ -117,7 +117,7 @@ throttle :: ThrottleConf a     -- ^ Throttling configuration
          -> (Maybe a -> IO ()) -- ^ Output callback
          -> IO (Async ())      -- ^ Returns an async handler for this
                                -- throttling process
-throttle (conf @ ThrottleConf { .. }) readItem writeItem = do
+throttle (conf@ThrottleConf { .. }) readItem writeItem = do
   queueBuffer <- atomically $ newTBMQueue throttleConfBufferSize
   statsTVar   <- atomically $ newTVar Stats { statsEmaItemSizeIn  = newEma throttleConfEmaAlpha 0
                                             , statsEmaItemSizeOut = newEma throttleConfEmaAlpha 0 }
@@ -143,7 +143,7 @@ consumerThrottled :: ThrottleConf a
                   -> TBMQueue a
                   -> IO (Maybe a)
                   -> IO ()
-consumerThrottled (conf @ ThrottleConf { .. }) statsTVar buffer readItem = go
+consumerThrottled (conf@ThrottleConf { .. }) statsTVar buffer readItem = go
   where go = do
           (maybeStats, consumeDuration) <- timeAction $
             readItem >>= \ case
@@ -166,7 +166,7 @@ producer :: ThrottleConf a
          -> TBMQueue a
          -> (Maybe a -> IO ())
          -> IO ()
-producer (conf @ ThrottleConf { .. }) stats =
+producer (conf@ThrottleConf { .. }) stats =
   if throttleProducer throttleConfMode
   then producerThrottled conf stats
   else producerUnthrottled
@@ -177,7 +177,7 @@ consumer :: ThrottleConf a
          -> TBMQueue a
          -> IO (Maybe a)
          -> IO ()
-consumer (conf @ ThrottleConf { .. }) stats =
+consumer (conf@ThrottleConf { .. }) stats =
   if throttleConsumer throttleConfMode
   then consumerThrottled conf stats
   else consumerUnthrottled
@@ -190,7 +190,7 @@ producerThrottled :: ThrottleConf a
                   -> TBMQueue a
                   -> (Maybe a -> IO ())
                   -> IO ()
-producerThrottled (conf @ ThrottleConf { .. }) statsTVar buffer writeItem = go
+producerThrottled (conf@ThrottleConf { .. }) statsTVar buffer writeItem = go
   where go = do
           (maybeStats, produceDuration) <- timeAction $
             atomically (readTBMQueue buffer) >>= \ case
@@ -220,13 +220,13 @@ producerUnthrottled buffer writeItem = go
 
 -- | Update provided statistics.
 updateStatsOut :: ThrottleConf a -> a -> Stats -> Stats
-updateStatsOut ThrottleConf { .. } a (stats @ Stats { .. }) =
+updateStatsOut ThrottleConf { .. } a (stats@Stats { .. }) =
   stats { statsEmaItemSizeOut = emaUpdate aSize statsEmaItemSizeOut }
   where aSize = throttleConfMeasure a
 
 -- | Update provided statistics.
 updateStatsIn :: ThrottleConf a -> a -> Stats -> Stats
-updateStatsIn ThrottleConf { .. } a (stats @ Stats { .. }) =
+updateStatsIn ThrottleConf { .. } a (stats@Stats { .. }) =
   stats { statsEmaItemSizeIn = emaUpdate aSize statsEmaItemSizeIn }
   where aSize = throttleConfMeasure a
 
@@ -268,5 +268,5 @@ throttleDelay :: Double         -- ^ Current item size
               -> ThrottleConf a -- ^ Throttle configuration
               -> Double         -- ^ Duration of last write
               -> Int            -- ^ Resulting delay in microseconds
-throttleDelay itemSize (conf @ ThrottleConf { .. }) duration =
+throttleDelay itemSize (conf@ThrottleConf { .. }) duration =
   round . subtract duration . (10^3 *) $ computeDelay conf itemSize
