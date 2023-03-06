@@ -1,5 +1,5 @@
 name: throttle-io-stream
-version: '0.2.0.1'
+version: '0.2.0.2'
 synopsis: Throttler between arbitrary IO producer and consumer functions
 description: This packages provides functionality for throttling IO
              using general IO callbacks. The throttling depends on a
